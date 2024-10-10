@@ -26,11 +26,23 @@ jobs:
         run: |
           kubectl config view --raw > kubeconfig
 
-      - name: Store Kubeconfig as Secret
-        uses: actions/create-secret@v1
+      - name: Upload Kubeconfig as Artifact
+        uses: actions/upload-artifact@v3
         with:
-          name: KUBECONFIG
-          value: ${{ steps.get-kubeconfig.outputs.kubeconfig }}
+          name: kubeconfig
+          path: kubeconfig
+
+      - name: Download Kubeconfig Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: kubeconfig
+          path: kubeconfig
+
+      - name: Store Kubeconfig as Secret
+        run: |
+          echo "KUBECONFIG<<EOF
+          cat kubeconfig
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Login to Docker Hub
         uses: docker/login-action@v1
