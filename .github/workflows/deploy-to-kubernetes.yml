@@ -36,10 +36,12 @@ jobs:
           path: kubeconfig
 
       - name: Download Kubeconfig Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: kubeconfig
-          path: kubeconfig
+        run: |
+          rm -f kubeconfig
+          actions/download-artifact@v3
+          with:
+            name: kubeconfig
+            path: kubeconfig
 
       - name: Store Kubeconfig as Secret
         run: |
