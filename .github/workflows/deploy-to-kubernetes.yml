@@ -19,7 +19,9 @@ jobs:
           sudo install minikube /usr/local/bin/
           sudo apt-get update
           sudo apt-get install -y conntrack
-          sudo curl -s https://raw.githubusercontent.com/kubernetes-sigs/cri-tools/master/install | sudo bash
+          sudo wget https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.23.0/crictl-v1.23.0-linux-amd64.tar.gz
+          sudo tar -xvf crictl-v1.23.0-linux-amd64.tar.gz
+          sudo install -o root -g root -m 0755 crictl /usr/local/bin/crictl
 
       - name: Start Minikube
         run: |
