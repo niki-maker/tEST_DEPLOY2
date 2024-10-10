@@ -18,13 +18,10 @@ jobs:
           chmod +x minikube
           sudo install minikube /usr/local/bin/
           sudo apt-get update
-          sudo apt-get install -y conntrack
+          sudo apt-get install -y conntrack cri-dockerd
           sudo wget https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.23.0/crictl-v1.23.0-linux-amd64.tar.gz
           sudo tar -xvf crictl-v1.23.0-linux-amd64.tar.gz
           sudo install -o root -g root -m 0755 crictl /usr/local/bin/crictl
-          sudo wget https://github.com/Mirantis/cri-dockerd/releases/download/v0.3.1/cri-dockerd-v0.3.1-linux-amd64.tar.gz
-          sudo tar -xvf cri-dockerd-v0.3.1-linux-amd64.tar.gz
-          sudo install -o root -g root -m 0755 cri-dockerd /usr/local/bin/cri-dockerd
 
       - name: Start Minikube
         run: |
