@@ -12,28 +12,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install Minikube, conntrack, crictl, and cri-dockerd
+      - name: Install kind and kubectl
         run: |
-          curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-          chmod +x minikube
-          sudo install minikube /usr/local/bin/
-          sudo apt-get update
-          sudo apt-get install -y conntrack
-          sudo wget https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.23.0/crictl-v1.23.0-linux-amd64.tar.gz
-          sudo tar -xvf crictl-v1.23.0-linux-amd64.tar.gz
-          sudo install -o root -g root -m 0755 crictl /usr/local/bin/crictl
-          curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-          sudo echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-          sudo apt-get update
-          sudo apt-get install -y cri-dockerd
+          curl -Lo kind https://kind.sigs.k8s.io/dl/v0.14.0/kind-linux-amd64
+          chmod +x kind
+          sudo install kind /usr/local/bin/
+          curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v1.23.0/bin/linux/amd64/kubectl
+          chmod +x kubectl
+          sudo install kubectl /usr/local/bin/
 
-      - name: Start Minikube
+      - name: Create kind cluster
         run: |
-          minikube start --vm-driver=none
+          kind create cluster --name my-cluster
 
       - name: Get Kubeconfig
         run: |
-          kubectl config view --raw > kubeconfig
+          kind get kubeconfig > kubeconfig
 
       - name: Upload Kubeconfig as Artifact
         uses: actions/upload-artifact@v3
