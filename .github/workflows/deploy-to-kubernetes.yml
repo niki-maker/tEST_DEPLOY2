@@ -12,7 +12,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install Minikube, conntrack, and crictl
+      - name: Install Minikube, conntrack, crictl, and cri-dockerd
         run: |
           curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
           chmod +x minikube
@@ -22,6 +22,9 @@ jobs:
           sudo wget https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.23.0/crictl-v1.23.0-linux-amd64.tar.gz
           sudo tar -xvf crictl-v1.23.0-linux-amd64.tar.gz
           sudo install -o root -g root -m 0755 crictl /usr/local/bin/crictl
+          sudo wget https://github.com/kubernetes-sigs/cri-dockerd/releases/download/v0.3.1/cri-dockerd-v0.3.1-linux-amd64.tar.gz
+          sudo tar -xvf cri-dockerd-v0.3.1-linux-amd64.tar.gz
+          sudo install -o root -g root -m 0755 cri-dockerd /usr/local/bin/cri-dockerd
 
       - name: Start Minikube
         run: |
