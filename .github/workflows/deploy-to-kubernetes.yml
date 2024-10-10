@@ -12,11 +12,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install Minikube
+      - name: Install Minikube and conntrack
         run: |
           curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
           chmod +x minikube
           sudo install minikube /usr/local/bin/
+          sudo apt-get update
+          sudo apt-get install -y conntrack
 
       - name: Start Minikube
         run: |
