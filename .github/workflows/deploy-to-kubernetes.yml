@@ -19,11 +19,7 @@ jobs:
           sudo install minikube /usr/local/bin/
           sudo apt-get update
           sudo apt-get install -y conntrack
-          sudo apt-get install -y apt-transport-https
-          sudo curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-          sudo echo "deb https://packages.cloud.google.com/apt/kubernetes xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-          sudo apt-get update
-          sudo apt-get install -y crictl
+          sudo apt-get install -y cri-tools
 
       - name: Start Minikube
         run: |
