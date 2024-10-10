@@ -27,7 +27,7 @@ jobs:
 
       - name: Get Kubeconfig
         run: |
-          kind get kubeconfig > kubeconfig
+          kind get kubeconfig --name my-cluster > kubeconfig
 
       - name: Upload Kubeconfig as Artifact
         uses: actions/upload-artifact@v3
