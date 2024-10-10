@@ -47,7 +47,7 @@ jobs:
 
       - name: Store Kubeconfig as Secret
         run: |
-          KUBECONFIG_CONTENT=$(cat kubeconfig/*)
+          KUBECONFIG_CONTENT=$(kubectl config view --raw)
           echo "KUBECONFIG=$KUBECONFIG_CONTENT" >> $GITHUB_ENV
 
       - name: Login to Docker Hub
