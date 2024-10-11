@@ -27,9 +27,12 @@ jobs:
 
       - name: Get Kubeconfig
         run: |
-          kind get kubeconfig --name my-cluster > kubeconfig
+          kind get kubeconfig --name my-cluster --raw > kubeconfig
           cat kubeconfig
-          kubectl config view --kubeconfig=kubeconfig
+
+      - name: Validate Kubeconfig
+        run: |
+          kubectl config view --kubeconfig=kubeconfig --raw
 
       - name: Upload Kubeconfig as Artifact
         uses: actions/upload-artifact@v3
