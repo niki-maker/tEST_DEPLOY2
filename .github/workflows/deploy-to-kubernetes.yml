@@ -47,11 +47,6 @@ jobs:
           kubectl apply -f deployment.yaml
           kubectl apply -f service.yaml
 
-      - name: Wait for Deployment rollout
-        run: |
-          export KUBECONFIG=$PWD/kubeconfig
-          kubectl rollout status deployment/hello-python  # Update this with your deployment name
-
       - name: Check pod status (debugging)
         run: |
           export KUBECONFIG=$PWD/kubeconfig
