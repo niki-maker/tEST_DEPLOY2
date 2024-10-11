@@ -26,6 +26,10 @@ jobs:
           kind create cluster --name my-cluster
           kind get kubeconfig --name my-cluster > kubeconfig
 
+      - name: Export kubeconfig environment variable
+        run: |
+          export KUBECONFIG=$PWD/kubeconfig
+
       - name: Login to Docker Hub
         uses: docker/login-action@v1
         with:
@@ -37,13 +41,23 @@ jobs:
           docker build -f Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/hello-python:latest .
           docker push ${{ secrets.DOCKER_USERNAME }}/hello-python:latest
 
-      - name: Deploy to Kubernetes
+      - name: Apply Kubernetes manifests
         run: |
           export KUBECONFIG=$PWD/kubeconfig
           kubectl apply -f deployment.yaml
           kubectl apply -f service.yaml
 
-      - name: Validate Deployment
+      - name: Wait for Deployment rollout
         run: |
           export KUBECONFIG=$PWD/kubeconfig
-          kubectl rollout status deployment/hello-python
+          kubectl rollout status deployment/hello-python  # Update this with your deployment name
+
+      - name: Check pod status (debugging)
+        run: |
+          export KUBECONFIG=$PWD/kubeconfig
+          kubectl get pods
+
+      - name: Output pod logs (debugging)
+        run: |
+          export KUBECONFIG=$PWD/kubeconfig
+          kubectl logs -l app=hello-python  # You can also use pod name if available
