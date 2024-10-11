@@ -47,7 +47,7 @@ jobs:
 
       - name: Set Kubeconfig
         run: |
-          KUBECONFIG=$(cat kubeconfig)
+          KUBECONFIG=$(find kubeconfig -type f)
           echo "KUBECONFIG=$KUBECONFIG" >> $GITHUB_ENV
 
       - name: Login to Docker Hub
