@@ -46,4 +46,4 @@ jobs:
       - name: Validate Deployment
         run: |
           export KUBECONFIG=$PWD/kubeconfig
-          kubectl rollout status deployment/your-deployment-name
+          kubectl rollout status deployment/hello-python
