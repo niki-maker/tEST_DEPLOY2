@@ -27,12 +27,8 @@ jobs:
 
       - name: Get Kubeconfig
         run: |
-          kind get kubeconfig --name my-cluster > kubeconfig.yaml
-          kubectl config convert --infile kubeconfig.yaml --outfile kubeconfig
+          kind get kubeconfig --name my-cluster > kubeconfig
           cat kubeconfig
-
-      - name: Validate Kubeconfig
-        run: |
           kubectl config view --kubeconfig=kubeconfig
 
       - name: Upload Kubeconfig as Artifact
