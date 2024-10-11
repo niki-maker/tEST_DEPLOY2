@@ -27,7 +27,7 @@ jobs:
 
       - name: Get Kubeconfig
         run: |
-          kind get kubeconfig --name my-cluster > kubeconfig
+          kind export kubeconfig --name my-cluster > kubeconfig
           cat kubeconfig
 
       - name: Validate Kubeconfig
