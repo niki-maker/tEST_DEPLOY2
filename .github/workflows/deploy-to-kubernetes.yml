@@ -27,11 +27,24 @@ jobs:
 
       - name: Create Kubeconfig
         run: |
-          kubectl config init --kubeconfig=kubeconfig
-          kubectl config set-cluster my-cluster --server=https://my-cluster-control-plane:6443 --insecure-skip-tls-verify=true --kubeconfig=kubeconfig
-          kubectl config set-credentials kind-my-cluster --client-certificate-data=<your-client-certificate-data> --client-key-data=<your-client-key-data> --kubeconfig=kubeconfig
-          kubectl config set-context kind-my-cluster --cluster=my-cluster --user=kind-my-cluster --kubeconfig=kubeconfig
-          kubectl config use-context kind-my-cluster --kubeconfig=kubeconfig
+          echo "apiVersion: v1
+          kind: Config
+          clusters:
+          - name: my-cluster
+            cluster:
+              server: https://my-cluster-control-plane:6443
+              insecure-skip-tls-verify: true
+          users:
+          - name: kind-my-cluster
+            user:
+              client-certificate-data: <your-client-certificate-data>
+              client-key-data: <your-client-key-data>
+          contexts:
+          - name: kind-my-cluster
+            context:
+              cluster: my-cluster
+              user: kind-my-cluster
+          current-context: kind-my-cluster" > kubeconfig
           cat kubeconfig
 
       - name: Validate Kubeconfig
