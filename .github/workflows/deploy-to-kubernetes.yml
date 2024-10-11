@@ -1,3 +1,8 @@
+name: Deploy to Kubernetes
+
+on: push: branches: - main
+
+jobs: deploy: runs-on: ubuntu-latest steps: - name: Checkout code uses: actions/checkout@v3
   - name: Install kind and kubectl
     run: |
       curl -Lo kind https://kind.sigs.k8s.io/dl/v0.14.0/kind-linux-amd64
