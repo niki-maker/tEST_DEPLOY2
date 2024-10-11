@@ -25,6 +25,11 @@ jobs:
         run: |
           kind create cluster --name my-cluster
 
+      - name: Encode client certificate data and client key data
+        run: |
+          base64 -w 0 < client-certificate.pem > client-certificate-base64.txt
+          base64 -w 0 < client-key.pem > client-key-base64.txt
+
       - name: Create Kubeconfig
         run: |
           echo "apiVersion: v1
@@ -37,8 +42,8 @@ jobs:
           users:
           - name: kind-my-cluster
             user:
-              client-certificate-data: <your-client-certificate-data>
-              client-key-data: <your-client-key-data>
+              client-certificate-data: $(cat client-certificate-base64.txt)
+              client-key-data: $(cat client-key-base64.txt)
           contexts:
           - name: kind-my-cluster
             context:
