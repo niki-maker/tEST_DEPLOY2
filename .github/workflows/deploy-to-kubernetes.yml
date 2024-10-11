@@ -27,8 +27,8 @@ jobs:
 
       - name: Encode client certificate data and client key data
         run: |
-          echo "${CLIENT_CERTIFICATE}" | base64 -w 0 > client-certificate-base64.txt
-          echo "${CLIENT_KEY}" | base64 -w 0 > client-key-base64.txt
+          echo "${CLIENT_CERTIFICATE}" | base64 -w 0 | tr -d '\n' > client-certificate-base64.txt
+          echo "${CLIENT_KEY}" | base64 -w 0 | tr -d '\n' > client-key-base64.txt
         env:
           CLIENT_CERTIFICATE: ${{ secrets.CLIENT_CERTIFICATE }}
           CLIENT_KEY: ${{ secrets.CLIENT_KEY }}
