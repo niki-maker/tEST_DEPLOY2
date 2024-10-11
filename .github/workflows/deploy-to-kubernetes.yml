@@ -47,6 +47,17 @@ jobs:
           kubectl apply -f deployment.yaml
           kubectl apply -f service.yaml
 
+      - name: Check pod status
+        run: |
+            export KUBECONFIG=$PWD/kubeconfig
+            kubectl describe pod -l app=hello-python
+
+      - name: Check Kubernetes events
+        run: |
+            export KUBECONFIG=$PWD/kubeconfig
+            kubectl get events --sort-by=.metadata.creationTimestamp
+
+
       - name: Wait for pods to be ready (with retries)
         run: |
           export KUBECONFIG=$PWD/kubeconfig
