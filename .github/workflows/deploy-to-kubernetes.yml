@@ -1,103 +1,60 @@
-name: Deploy to Kubernetes
+  - name: Install kind and kubectl
+    run: |
+      curl -Lo kind https://kind.sigs.k8s.io/dl/v0.14.0/kind-linux-amd64
+      chmod +x kind
+      sudo install kind /usr/local/bin/
+      curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v1.23.0/bin/linux/amd64/kubectl
+      chmod +x kubectl
+      sudo install kubectl /usr/local/bin/
 
-on:
-  push:
-    branches:
-      - main
+  - name: Create kind cluster
+    run: |
+      kind create cluster --name my-cluster
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+  - name: Get Kubeconfig
+    run: |
+      kind get kubeconfig --name my-cluster > kubeconfig
 
-      - name: Install kind and kubectl
-        run: |
-          curl -Lo kind https://kind.sigs.k8s.io/dl/v0.14.0/kind-linux-amd64
-          chmod +x kind
-          sudo install kind /usr/local/bin/
-          curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v1.23.0/bin/linux/amd64/kubectl
-          chmod +x kubectl
-          sudo install kubectl /usr/local/bin/
+  - name: Upload Kubeconfig as Artifact
+    uses: actions/upload-artifact@v3
+    with:
+      name: kubeconfig
+      path: kubeconfig
 
-      - name: Create kind cluster
-        run: |
-          kind create cluster --name my-cluster
+  - name: Remove existing kubeconfig
+    run: |
+      rm -f kubeconfig
 
-      - name: Encode client certificate data and client key data
-        run: |
-          echo "${CLIENT_CERTIFICATE}" | base64 -w 0 | tr -d '\n' > client-certificate-base64.txt
-          echo "${CLIENT_KEY}" | base64 -w 0 | tr -d '\n' > client-key-base64.txt
-        env:
-          CLIENT_CERTIFICATE: ${{ secrets.CLIENT_CERTIFICATE }}
-          CLIENT_KEY: ${{ secrets.CLIENT_KEY }}
+  - name: Download Kubeconfig Artifact
+    uses: actions/download-artifact@v3
+    with:
+      name: kubeconfig
+      path: kubeconfig
 
-      - name: Create Kubeconfig
-        run: |
-          echo "apiVersion: v1
-          kind: Config
-          clusters:
-          - name: my-cluster
-            cluster:
-              server: https://my-cluster-control-plane:6443
-              insecure-skip-tls-verify: true
-          users:
-          - name: kind-my-cluster
-            user:
-              client-certificate-data: $(cat client-certificate-base64.txt)
-              client-key-data: $(cat client-key-base64.txt)
-          contexts:
-          - name: kind-my-cluster
-            context:
-              cluster: my-cluster
-              user: kind-my-cluster
-          current-context: kind-my-cluster" > kubeconfig
-          cat kubeconfig
+  - name: Store Kubeconfig as Secret
+    run: |
+      kubectl config view --raw > kubeconfig_content
+      KUBECONFIG=$(cat kubeconfig_content | base64 -w 0)
+      echo "KUBECONFIG=$KUBECONFIG" >> $GITHUB_ENV
 
-      - name: Validate Kubeconfig
-        run: |
-          kubectl config view --kubeconfig=kubeconfig --raw
+  - name: Login to Docker Hub
+    uses: docker/login-action@v1
+    with:
+      username: ${{ secrets.DOCKER_USERNAME }}
+      password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Upload Kubeconfig as Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: kubeconfig
-          path: kubeconfig
+  - name: Build and push Docker image
+    run: |
+      docker build -f Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/hello-python:latest .
+      docker push ${{ secrets.DOCKER_USERNAME }}/hello-python:latest
 
-      - name: Remove existing kubeconfig
-        run: |
-          rm -f kubeconfig
+  - name: Set Kubeconfig
+    uses: azure/k8s-set-context@v1
+    with:
+      kubeconfig: ${{ env.KUBECONFIG }}
+      context: ${{ secrets.KUBECONTEXT }}
 
-      - name: Download Kubeconfig Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: kubeconfig
-          path: kubeconfig
-
-      - name: Set Kubeconfig
-        run: |
-          KUBECONFIG=$(find kubeconfig -type f)
-          echo "KUBECONFIG=$KUBECONFIG" >> $GITHUB_ENV
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Build and push Docker image
-        run: |
-          docker build -f Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/hello-python:latest .
-          docker push ${{ secrets.DOCKER_USERNAME }}/hello-python:latest
-
-      - name: Set Kubeconfig
-        uses: azure/k8s-set-context@v1
-        with:
-          kubeconfig: ${{ env.KUBECONFIG }}
-          context: ${{ secrets.KUBECONTEXT }}
-
-      - name: Deploy to Kubernetes
-        run: |
-          kubectl apply -f deployment.yaml
-          kubectl apply -f service.yaml
+  - name: Deploy to Kubernetes
+    run: |
+      kubectl apply -f deployment.yaml
+      kubectl apply -f service.yaml
