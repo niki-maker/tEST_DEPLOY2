@@ -25,9 +25,13 @@ jobs:
         run: |
           kind create cluster --name my-cluster
 
-      - name: Get Kubeconfig
+      - name: Create Kubeconfig
         run: |
-          kind get kubeconfig --name my-cluster --internal > kubeconfig
+          kubectl config init --kubeconfig=kubeconfig
+          kubectl config set-cluster my-cluster --server=https://my-cluster-control-plane:6443 --insecure-skip-tls-verify=true --kubeconfig=kubeconfig
+          kubectl config set-credentials kind-my-cluster --client-certificate-data=<your-client-certificate-data> --client-key-data=<your-client-key-data> --kubeconfig=kubeconfig
+          kubectl config set-context kind-my-cluster --cluster=my-cluster --user=kind-my-cluster --kubeconfig=kubeconfig
+          kubectl config use-context kind-my-cluster --kubeconfig=kubeconfig
           cat kubeconfig
 
       - name: Validate Kubeconfig
