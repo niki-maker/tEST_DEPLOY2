@@ -66,5 +66,5 @@ jobs:
 
       - name: Output pod logs (debugging)
         run: |
-          kubectl logs -l app=hello-python  # Update this to your specific app label
+          kubectl logs -l app=hello-python --all-containers=true
           
